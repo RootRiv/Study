@@ -8,23 +8,21 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
-public class Manga {
+public class manga {
 	static{
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 	}
 
 	public static void main(String[] args) {
 
-		String path_in = "C:/Users/meiji/Pictures/side_sample.jpg";
-		String path_gray_out = "C:/Users/meiji/Pictures/manga/sample_gray.jpg";
-		String path_edge_out = "C:/Users/meiji/Pictures/manga/sample_edges.jpg";
-		String path_white_out = "C:/Users/meiji/Pictures/manga/white_out.jpg";
-		String path_sample_out = "C:/Users/meiji/Pictures/manga/sample_out.jpg";
-		String path_white_endline_out = "C:/Users/meiji/Pictures/manga/white_endline_out.jpg";
-		String path_Rect = "C:/Users/meiji/Pictures/manga/Rect.jpg";
-		String path_in_drown = "C:/Users/meiji/Pictures/sample_rect.jpg";
-		
-		
+		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
+		String path_gray_out = "C:/Users/Tonegawa/Pictures/manga/sample_gray.jpg";
+		String path_edge_out = "C:/Users/Tonegawa/Pictures/manga/sample_edges.jpg";
+		String path_white_out = "C:/Users/Tonegawa/Pictures/manga/white_out.jpg";
+		String path_sample_out = "C:/Users/Tonegawa/Pictures/manga/sample_out.jpg";
+		String path_white_endline_out = "C:/Users/Tonegawa/Pictures/manga/white_endline_out.jpg";
+		String path_Rect = "C:/Users/Tonegawa/Pictures/manga/Rect.jpg";
+		String path_in_drown = "C:/Users/Tonegawa/Pictures/Findcontours/sample_rect.jpg";
 
 		Mat mat_src = new Mat();
 		Mat gray = new Mat();
@@ -35,21 +33,20 @@ public class Manga {
 		Mat rect = new Mat();
 		rect = Highgui.imread(path_in_drown);
 		double[][] contours;
-		
+
 		//debug
 		Highgui.imwrite(path_Rect, rect);
-		
 
-		mat_src = Highgui.imread(path_in);						 // “ü—Í‰æ‘œ‚Ì“Ç‚İ‚İ
+		mat_src = Highgui.imread(path_in);						 // å…¥åŠ›ç”»åƒã®èª­ã¿è¾¼ã¿
 		white = mat_src.clone();
 		white.setTo(new Scalar(255, 255, 255));
 		white2 = white.clone();
 		//rect = white.clone();
 
-		Imgproc.cvtColor(mat_src, gray, Imgproc.COLOR_BGR2GRAY); // ƒJƒ‰[‰æ‘œ‚ğƒOƒŒ[‰æ‘œ‚É•ÏŠ·
-		Imgproc.Canny(gray, edges, 100, 200);					//@ƒGƒbƒWŒŸo
-		Imgproc.HoughLinesP(edges, lines, 1, Math.PI / 180, 100, 100, 5);	//’¼üŒŸo
-		fncDrwLine(lines, white);									//’¼ü•`‰æ
+		Imgproc.cvtColor(mat_src, gray, Imgproc.COLOR_BGR2GRAY); // ã‚«ãƒ©ãƒ¼ç”»åƒã‚’ã‚°ãƒ¬ãƒ¼ç”»åƒã«å¤‰æ›
+		Imgproc.Canny(gray, edges, 100, 200);					//ã€€ã‚¨ãƒƒã‚¸æ¤œå‡º
+		Imgproc.HoughLinesP(edges, lines, 1, Math.PI / 180, 100, 100, 5);	//ç›´ç·šæ¤œå‡º
+		fncDrwLine(lines, white);									//ç›´ç·šæç”»
 		contours = fncDrwLine(lines, mat_src);
 
 		komaDefine(mat_src, contours);
@@ -58,14 +55,14 @@ public class Manga {
 		double[][] x0EndLine = new double[size[0]][4];
 		double[][] y0EndLine = new double[size[1]][4];
 		double[][] xMaxEndLine = new double[size[2]][4];
-		double[][] yMaxEndLine = new double[size[3]][4];			//Še•Ó‚Ì’[“_î•ñ
+		double[][] yMaxEndLine = new double[size[3]][4];			//å„è¾ºã®ç«¯ç‚¹æƒ…å ±
 
 		double[][] end_line = findLineEnd(mat_src, contours, x0EndLine, xMaxEndLine, y0EndLine, yMaxEndLine);
 		drwLineEnd(white2, end_line);
 
 		cutEndLineRect(rect, x0EndLine, xMaxEndLine, y0EndLine, yMaxEndLine);
 
-		Highgui.imwrite(path_gray_out, gray);						// o—Í‰æ‘œ‚ğ•Û‘¶
+		Highgui.imwrite(path_gray_out, gray);						// å‡ºåŠ›ç”»åƒã‚’ä¿å­˜
 		Highgui.imwrite(path_edge_out, edges);
 		Highgui.imwrite(path_white_out, white);
 		Highgui.imwrite(path_white_endline_out, white2);
@@ -125,8 +122,8 @@ public class Manga {
 	}
 
 
-	//ü•ªŒŸoè–@
-	//ƒoƒO‚ ‚è
+	//ç·šåˆ†æ¤œå‡ºæ‰‹æ³•
+	//ãƒã‚°ã‚ã‚Š
 	//
 	private static void komaDefine(Mat src, double[][] point){
 		System.out.println("komaDefine open");
@@ -141,34 +138,34 @@ public class Manga {
 				if(point[i][2] == xmax) xmaxFrag = true;
 				for(int j = i+1;j < point.length;j++){
 					if(x0Frag){
-						//¶‰º
+						//å·¦ä¸‹
 						if(point[i][2] >= point[j][0] - 10 && point[i][2] <= 10 + point[j][0] && point[i][3] <= 10 + point[j][1] && point[i][3] >= point[j][1] - 10){
 							koma[count] = new Koma(src, new Point(point[j][2], point[j][3]), new Point(point[i][0], point[i][1]));
-							System.out.println("save succece ¶‰º@@count = " + count);
+							System.out.println("save succece å·¦ä¸‹ã€€ã€€count = " + count);
 							System.out.print(koma[count].getMinPoint() + " ");
 							System.out.println(koma[count].getMaxPoint());
 							count++;
 						}
-						//¶ã
+						//å·¦ä¸Š
 						if(point[i][2] == point[j][2] && point[i][3] == point[j][3]){
 							koma[count] = new Koma(src, new Point(point[i][2], point[i][3]), new Point(point[i][0], point[j][1]));
-							System.out.println("save succece ¶ã@@count = " + count);
+							System.out.println("save succece å·¦ä¸Šã€€ã€€count = " + count);
 							count++;
 						}
 						x0Frag = false;
 					}
 
 					if(xmaxFrag){
-						//‰Eã
+						//å³ä¸Š
 						if(point[i][0] == point[j][2] && point[i][1] == point[j][3]){
 							koma[count] = new Koma(src, new Point(point[i][2], point[i][3]), new Point(point[j][0], point[j][1]));
-							System.out.println("save succece ‰Eã@@count = " + count);
+							System.out.println("save succece å³ä¸Šã€€ã€€count = " + count);
 							count++;
 						}
-						//‰E‰º
+						//å³ä¸‹
 						if(point[i][0] == point[j][0] && point[i][1] == point[j][1]){
 							koma[count] = new Koma(src, new Point(point[i][2], point[j][3]), new Point(point[i][0], point[i][1]));
-							System.out.println("save succece ‰E‰º@@count = " + count);
+							System.out.println("save succece å³ä¸‹ã€€ã€€count = " + count);
 							count++;
 						}
 						xmaxFrag = false;
@@ -180,6 +177,7 @@ public class Manga {
 
 	}
 
+	//ç·šåˆ†ã®æœ¬æ•°ã‚’æ•°ãˆã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
 	public static int[] endLineSize(Mat src, double contours[][]){
 		int[] size = {0, 0, 0, 0};
 		int XMAX = src.width();
@@ -203,6 +201,8 @@ public class Manga {
 		return size;
 	}
 
+	//ç·šåˆ†ã‚’ä¸€ã¤ã®äºŒæ¬¡å…ƒé…åˆ—ã«ä¿å­˜ã™ã‚‹ãŸã‚ã®ãƒ¡ã‚½ãƒƒãƒ‰
+	//ç¾çŠ¶å¿…è¦ç„¡ã„
 	public static double[][] findLineEnd(Mat src, double contours[][]){
 		double[][] endPoint = new double[15][4];
 		int XMAX = src.width();
@@ -223,7 +223,9 @@ public class Manga {
 		return endPoint;
 	}
 
-
+	//1å„è¾ºã®ç·šåˆ†æƒ…å ±ã‚’ä¿å­˜ã™ã‚‹ãŸã‚ã®ãƒ¡ã‚½ãƒƒãƒ‰
+	// 10/27
+	// ç·šåˆ†ã®é–“éš”ãŒç‹­ã„ã¨ãä¿å­˜ã—ãªã„ãŸã‚ã®å·¥å¤«ãŒå¿…è¦
 	public static double[][] findLineEnd(Mat src, double contours[][],double[][] x0EndPoint, double[][] xMaxEndPoint, double[][] y0EndPoint, double[][] yMaxEndPoint){
 		double[][] endPoint = new double[20][4];
 		int XMAX = src.width();
@@ -242,6 +244,7 @@ public class Manga {
 		for(int i = 0;i  < contours.length;i++){
 			if(contours[i][0] <= 5 || contours[i][3] <= 5 || contours[i][2] >= XMAX-5 || YMAX-5 <= contours[i][1]){
 				System.out.println(count);
+
 				if(contours[i][0] <= 5){
 					System.out.println("x0count = " + x0count);
 					for(int j = 0;j < 4;j++){
@@ -298,59 +301,91 @@ public class Manga {
 		Point right_up = new Point(XMAX,0);
 		Point right_down = new Point(XMAX,YMAX);
 
-		//leftup
-		String fileSpaceName = "X0_Space";
+		// leftup
+		// bugç„¡ã—
+		// ã“ã®ã¾ã¾ä»–ã®ã‚‚å®Ÿè£…
+		String fileSpaceName = "LeftUP_Space";
 		String filename;
 		for(Integer i = 0;i < x0EndPoint.length;i++){
 			for(Integer j = 0;j < y0EndPoint.length;j++){
 				filename = fileSpaceName + i.toString() + j.toString();
 				img_rect = fncCutImageRect(src, left_up, (int)y0EndPoint[j][0], (int)x0EndPoint[i][1]);
+
 				//color find
 				for(int h = 0;h < 2;h++){
 					row = img_rect.rows()*(h+1) / 3;
 					for(int k = 0;k < 2;k++){
 						col = img_rect.cols()*(k+1) / 3;
 						data = img_rect.get(row, col);
-						
-						System.out.println(i + ", " +  j);
-						System.out.println("B " + data[0]);
-						System.out.println("G " + data[1]);
-						System.out.println("R " + data[2]);
-						
-						System.out.println("row = " + row + " col = " + col);
+
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
 							System.out.println("blue");
 							colorFlag = false;
-							fncCutImageRect(src, left_up, (int)y0EndPoint[j][0], (int)x0EndPoint[i][1], filename);
 						}
 					}
 				}
+				if(colorFlag)
+					fncCutImageRect(src, left_up, (int)y0EndPoint[j][0], (int)x0EndPoint[i][1], filename);
+				colorFlag = true;
 			}
 		}
 
-		//leftdown
+		// leftdown
+		// ä¸€å¿œãƒã‚°ã¯ç„¡ã„
+		// ç·šåˆ†æ¤œå‡ºã«æ”¹å–„ã®ä½™åœ°ã‚ã‚Š
+		fileSpaceName = "LeftDown_Space";
+		Point left_down_start;
+		for(Integer i = 0;i < yMaxEndPoint.length;i++){
+			for(Integer j = 0;j < x0EndPoint.length;j++){
+				filename = fileSpaceName + i.toString() + j.toString();
+				left_down_start = new Point(left_down.x, left_down.y  - (int)x0EndPoint[j][1]);
+				img_rect = fncCutImageRect(src, left_down_start, (int)yMaxEndPoint[i][0], (int)x0EndPoint[j][1]);
+
+				//color find
+				for(int h = 0;h < 2;h++){
+					row = img_rect.rows()*(h+1) / 3;
+					for(int k = 0;k < 2;k++){
+						col = img_rect.cols()*(k+1) / 3;
+						data = img_rect.get(row, col);
+
+						//é’è‰²ãŒã‚ã‚‹ã¨ãã®å‡¦ç†
+						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
+							System.out.println("blue");
+							colorFlag = false;
+						}
+					}
+				}
+				if(colorFlag){
+					//debug
+					System.out.println("left_down_start = " + left_down_start + " w = " + (int)yMaxEndPoint[i][0] + " h = " + (int)x0EndPoint[j][1]);
+					fncCutImageRect(src, left_down_start, (int)yMaxEndPoint[i][0], (int)x0EndPoint[j][1], filename);
+				}
+				colorFlag = true;
+			}
+		}
 
 	}
 
-	//’·•ûŒ`Ø”²‚«
+	//é•·æ–¹å½¢åˆ‡æŠœã
 	private static Mat fncCutImageRect(Mat img, Point pt1, int w,int h,String filename){
 		Rect roi = new Rect((int)pt1.x, (int)pt1.y, w, h);
 		Mat img2 = new Mat(img, roi);
-		String s = new String("C:/Users/meiji/Pictures/manga/" + filename + ".jpg");
+		String s = new String("C:/Users/Tonegawa/Pictures/manga/" + filename + ".jpg");
 		Highgui.imwrite(s,img2);
 		System.out.println(filename + ".jpg save success");
 		return img2;
 	}
-	
+
 	private static Mat fncCutImageRect(Mat img, Point pt1, int w,int h){
 		Rect roi = new Rect((int)pt1.x, (int)pt1.y, w, h);
+		System.out.println("dims =  " + img.dims());
 		Mat img2 = new Mat(img, roi);
-		//String s = new String("C:/Users/meiji/Pictures/manga/" + filename + ".jpg");
+		//String s = new String("C:/Users/Tonegawa/Pictures/manga/" + filename + ".jpg");
 		//Highgui.imwrite(s,img2);
 		//System.out.println(filename + ".jpg save success");
 		return img2;
 	}
-	
+
 
 	public static void drwLineEnd(Mat src, double[][] contours){
 		int YMAX = src.height();
@@ -366,14 +401,14 @@ public class Manga {
 		}
 	}
 
-	//Ø‚è”²‚­ƒRƒ}‚Ìî•ñ‚ğˆê‚Â‚É‚Ü‚Æ‚ß‚½ƒNƒ‰ƒX
+	//åˆ‡ã‚ŠæŠœãã‚³ãƒã®æƒ…å ±ã‚’ä¸€ã¤ã«ã¾ã¨ã‚ãŸã‚¯ãƒ©ã‚¹
     public static class Koma{
         private Mat image;
         private Point max,min;
         private int high;
         private int width;
 
-        //ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+        //ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
         public Koma(Mat src, Point getMax, Point getMin) {
             image = src;
             max = getMax;
