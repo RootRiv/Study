@@ -1,4 +1,4 @@
-﻿package manga;
+package manga;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -663,15 +663,20 @@ public class manga {
 						data = img_rect.get(h, k);
 
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
+							colorCount++;
+						}
+						if(colorCount == 1000){
 							colorFlag = false;
 							break;
 						}
+
 					}
 					if(!colorFlag) break;
 				}
 				if(colorFlag)
 					fncCutImageRect(img, left_up, (int)y0EndPoint[j][0], (int)x0EndPoint[i][1], filename);
 				colorFlag = true;
+				colorCount = 0;
 			}
 		}
 
@@ -680,19 +685,6 @@ public class manga {
 		fileSpaceName = "LeftDown_Space";
 		Point left_down_start;
 		colorFlag = true;
-
-		//debug
-		System.out.println(" yMaxEndPoint.length = " + yMaxEndPoint.length);
-		System.out.println(" x0EndPoint.length = " + x0EndPoint.length);
-		System.out.println(" left_Down = " + left_down);
-		//線分は正しく格納されている
-		for(int i = 0;i <  x0EndPoint.length;i++){
-			for(int j = 0;j < 4;j++){
-				System.out.print(x0EndPoint[i][j] + " ");
-			}
-			System.out.println();
-		}
-
 		for(Integer i = 0;i < yMaxEndPoint.length;i++){
 			for(Integer j = 0;j < x0EndPoint.length;j++){
 				filename = fileSpaceName + i.toString() + j.toString();
@@ -717,12 +709,74 @@ public class manga {
 					if(!colorFlag) break;
 				}
 
-				if(true){
+				if(colorFlag){
 					//debug
 					System.out.println("left_down_start = " + left_down_start + " w = " + (int)yMaxEndPoint[i][0] + " h = " + (int)x0EndPoint[j][1]);
 					fncCutImageRect(img, left_down_start, (int)yMaxEndPoint[i][0], YMAX - (int)x0EndPoint[j][1], filename);
 				}
 				colorFlag = true;
+				colorCount = 0;
+			}
+		}
+
+		// Right_up
+		fileSpaceName = "RightUP_Space";
+		Point right_up_start;
+		colorFlag = true;
+		for(Integer i = 0;i < xMaxEndPoint.length;i++){
+			for(Integer j = 0;j < y0EndPoint.length;j++){
+				filename = fileSpaceName + i.toString() + j.toString();
+				right_up_start = new Point(y0EndPoint[j][0], 0);
+				img_rect = fncCutImageRect(src, right_up_start, XMAX - (int)y0EndPoint[j][0], (int)xMaxEndPoint[i][1]);
+
+				//color find
+				for(int h = 10;h < img_rect.rows() -10;h++){
+					for(int k = 10;k < img_rect.cols() -10;k++){
+						data = img_rect.get(h, k);
+
+						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
+							colorCount++;
+						}
+						if(colorCount == 1000){
+							colorFlag = false;
+							break;
+						}
+					}
+					if(!colorFlag) break;
+				}
+				if(colorFlag)
+					fncCutImageRect(img, right_up_start, XMAX - (int)y0EndPoint[j][0], (int)xMaxEndPoint[i][1], filename);
+				colorFlag = true;
+			}
+		}
+		fileSpaceName = "RightDown_Space";
+		Point right_down_start;
+		colorFlag = true;
+		for(Integer i = 0;i < xMaxEndPoint.length;i++){
+			for(Integer j = 0;j < yMaxEndPoint.length;j++){
+				filename = fileSpaceName + i.toString() + j.toString();
+				right_down_start = new Point(YMAX-yMaxEndPoint[j][0], XMAX-xMaxEndPoint[i][1]);
+				img_rect = fncCutImageRect(src, right_down_start, XMAX - (int)yMaxEndPoint[j][0], YMAX - (int)xMaxEndPoint[i][1]);
+
+				//color find
+				for(int h = 10;h < img_rect.rows() -10;h++){
+					for(int k = 10;k < img_rect.cols() -10;k++){
+						data = img_rect.get(h, k);
+
+						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
+							colorCount++;
+						}
+						if(colorCount == 1000){
+							colorFlag = false;
+							break;
+						}
+					}
+					if(!colorFlag) break;
+				}
+				if(colorFlag)
+					fncCutImageRect(img, right_down_start, XMAX - (int)yMaxEndPoint[j][0], YMAX - (int)xMaxEndPoint[i][1], filename);
+				colorFlag = true;
+				colorCount = 0;
 			}
 		}
 
