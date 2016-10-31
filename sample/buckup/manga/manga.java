@@ -49,8 +49,6 @@ public class manga {
 		fncDrwLine(lines, white);									//直線描画
 		contours = fncDrwLine(lines, mat_src);
 
-		komaDefine(mat_src, contours);
-
 		int[] size = endLineSize(mat_src, contours);
 		double[][] x0EndLine =  findLineX0End(mat_src, contours);
 		double[][] y0EndLine = findLineY0End(mat_src, contours);
@@ -69,6 +67,8 @@ public class manga {
 		Highgui.imwrite(path_sample_out, mat_src);
 	}
 
+	//縦と横の線のみをびょうがするメソッド
+	//同時に縦と横の線を描画する
 	private static double[][] fncDrwLine(Mat line,Mat img) {
 		double[] data;
 		double[][] contours = new double[line.cols()][4];
@@ -119,62 +119,6 @@ public class manga {
 		}
 
 		return returnContours;
-	}
-
-
-	//線分検出手法
-	//バグあり
-	//使わないかも
-	private static void komaDefine(Mat src, double[][] point){
-		System.out.println("komaDefine open");
-		Koma[] koma = new Koma[10];
-		int xmax = src.width();
-		int count = 0;
-		boolean x0Frag = false, xmaxFrag = false, y0Frag = false, ymaxFrag = false;
-
-		for(int i = 0;i < point.length;i++){
-			if(point[i][0] == 0 || point[i][2] == xmax){
-				if(point[i][0] == 0) x0Frag = true;
-				if(point[i][2] == xmax) xmaxFrag = true;
-				for(int j = i+1;j < point.length;j++){
-					if(x0Frag){
-						//左下
-						if(point[i][2] >= point[j][0] - 10 && point[i][2] <= 10 + point[j][0] && point[i][3] <= 10 + point[j][1] && point[i][3] >= point[j][1] - 10){
-							koma[count] = new Koma(src, new Point(point[j][2], point[j][3]), new Point(point[i][0], point[i][1]));
-							System.out.println("save succece 左下　　count = " + count);
-							System.out.print(koma[count].getMinPoint() + " ");
-							System.out.println(koma[count].getMaxPoint());
-							count++;
-						}
-						//左上
-						if(point[i][2] == point[j][2] && point[i][3] == point[j][3]){
-							koma[count] = new Koma(src, new Point(point[i][2], point[i][3]), new Point(point[i][0], point[j][1]));
-							System.out.println("save succece 左上　　count = " + count);
-							count++;
-						}
-						x0Frag = false;
-					}
-
-					if(xmaxFrag){
-						//右上
-						if(point[i][0] == point[j][2] && point[i][1] == point[j][3]){
-							koma[count] = new Koma(src, new Point(point[i][2], point[i][3]), new Point(point[j][0], point[j][1]));
-							System.out.println("save succece 右上　　count = " + count);
-							count++;
-						}
-						//右下
-						if(point[i][0] == point[j][0] && point[i][1] == point[j][1]){
-							koma[count] = new Koma(src, new Point(point[i][2], point[j][3]), new Point(point[i][0], point[i][1]));
-							System.out.println("save succece 右下　　count = " + count);
-							count++;
-						}
-						xmaxFrag = false;
-					}
-
-				}
-			}
-		}
-
 	}
 
 	//線分の本数を数えるメソッド
@@ -541,11 +485,12 @@ public class manga {
 	}
 
 	//rappa-
+	//入力画像は塗りつぶし画像のみ
+	//したがって、出力も塗りつぶしい画像を切り出したものになる.
 	public static void cutEndLineRect(Mat src, double[][] x0EndPoint, double[][] xMaxEndPoint, double[][] y0EndPoint, double[][] yMaxEndPoint){
 		int XMAX = src.width();
 		int YMAX = src.height();
 		double[] data = new double[3];
-		double[] data2 = new double[3];
 		boolean colorFlag = true;
 		int colorCount = 0;
 
@@ -630,6 +575,8 @@ public class manga {
 
 	}
 
+	//引数1は塗りつぶし画像
+	//引数2は切り出す画像, 漫画の画像で良い.
 	public static void cutEndLineRect(Mat src, Mat img, double[][] x0EndPoint, double[][] xMaxEndPoint, double[][] y0EndPoint, double[][] yMaxEndPoint){
 		int XMAX = src.width();
 		int YMAX = src.height();
@@ -749,6 +696,8 @@ public class manga {
 				colorFlag = true;
 			}
 		}
+
+		//Right_down
 		fileSpaceName = "RightDown_Space";
 		Point right_down_start;
 		colorFlag = true;
