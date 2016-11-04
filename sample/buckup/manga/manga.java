@@ -15,7 +15,7 @@ public class manga {
 
 	public static void main(String[] args) {
 
-		String path_in = "C:/Users/Tonegawa/Pictures/simple.png";
+		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/manga/sample_gray.jpg";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/manga/sample_edges.jpg";
 		String path_white_out = "C:/Users/Tonegawa/Pictures/manga/white_out.jpg";
@@ -635,7 +635,7 @@ public class manga {
 		for(Integer i = 0;i < yMaxEndPoint.length;i++){
 			for(Integer j = 0;j < x0EndPoint.length;j++){
 				filename = fileSpaceName + i.toString() + j.toString();
-				left_down_start = new Point(left_down.x, x0EndPoint[j][1]);
+				left_down_start = new Point(0, x0EndPoint[j][1]);
 				img_rect = fncCutImageRect(src, left_down_start, (int)yMaxEndPoint[i][0], YMAX - (int)x0EndPoint[j][1]);
 
 				//color find
@@ -704,7 +704,9 @@ public class manga {
 		for(Integer i = 0;i < xMaxEndPoint.length;i++){
 			for(Integer j = 0;j < yMaxEndPoint.length;j++){
 				filename = fileSpaceName + i.toString() + j.toString();
-				right_down_start = new Point(YMAX-yMaxEndPoint[j][0], XMAX-xMaxEndPoint[i][1]);
+				right_down_start = new Point(yMaxEndPoint[j][0], xMaxEndPoint[i][1]);
+				System.out.println("right_Down_start = " + right_down_start);
+				System.out.println("w = " + (XMAX - (int)yMaxEndPoint[j][0]) + " h = " + (YMAX - (int)xMaxEndPoint[i][1]));
 				img_rect = fncCutImageRect(src, right_down_start, XMAX - (int)yMaxEndPoint[j][0], YMAX - (int)xMaxEndPoint[i][1]);
 
 				//color find

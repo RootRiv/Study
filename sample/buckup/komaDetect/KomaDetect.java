@@ -27,9 +27,9 @@ public class KomaDetect {
 	public static void main(String[] args){
 		//検出したコマをここに入れる。
 		//添え字はグローバル変数に記載
-		Koma[] koma = new Koma[10];
+		Koma[] koma = new Koma[20];
 
-		String path_in = "C:/Users/Tonegawa/Pictures/simple.png";
+		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/KomaDetect/edges_out.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/KomaDetect/gray_out.jpg";
 		String path_matContours_out = "C:/Users/Tonegawa/Pictures/KomaDetect/contours_out.jpg";
@@ -103,6 +103,8 @@ public class KomaDetect {
 		Highgui.imwrite(path_line_out2, white2);
 		Highgui.imwrite(path_rect_out, rect);
 
+		//コマのソート
+
 		//コマの画像の保存
 		Integer name = 0;
 		String filename;
@@ -127,7 +129,6 @@ public class KomaDetect {
 				maxWidth = koma[i].getWidth();
 			}
 		}
-
 		//縦に結合
 		Mat combined_img = new Mat(totalHeight, maxWidth, CvType.CV_8UC3);
 		Rect roi = new Rect();
@@ -490,7 +491,7 @@ public class KomaDetect {
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
 							colorCount++;
 						}
-						if(colorCount == 1000){
+						if(colorCount == 100){
 							colorFlag = false;
 							break;
 						}
@@ -526,7 +527,7 @@ public class KomaDetect {
 						//青色があるときの処理
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0)
 							colorCount++;
-						if(colorCount == 1000){
+						if(colorCount == 100){
 							colorFlag = false;
 							break;
 						}
@@ -562,7 +563,7 @@ public class KomaDetect {
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
 							colorCount++;
 						}
-						if(colorCount == 1000){
+						if(colorCount == 100){
 							colorFlag = false;
 							break;
 						}
@@ -586,7 +587,7 @@ public class KomaDetect {
 		for(Integer i = 0;i < xMaxEndPoint.length;i++){
 			for(Integer j = 0;j < yMaxEndPoint.length;j++){
 				filename = fileSpaceName + i.toString() + j.toString();
-				right_down_start = new Point(YMAX-yMaxEndPoint[j][0], XMAX-xMaxEndPoint[i][1]);
+				right_down_start = new Point(yMaxEndPoint[j][0], xMaxEndPoint[i][1]);
 				img_rect = fncCutImageRect(src, right_down_start, XMAX - (int)yMaxEndPoint[j][0], YMAX - (int)xMaxEndPoint[i][1]);
 
 				//color find
@@ -597,7 +598,7 @@ public class KomaDetect {
 						if(data[0] >= 250 && data[1] == 0 && data[2] == 0){
 							colorCount++;
 						}
-						if(colorCount == 1000){
+						if(colorCount == 100){
 							colorFlag = false;
 							break;
 						}
@@ -606,7 +607,7 @@ public class KomaDetect {
 				}
 				if(colorFlag){
 					fncCutImageRect(img, right_down_start, XMAX - (int)yMaxEndPoint[j][0], YMAX - (int)xMaxEndPoint[i][1], filename);
-					koma[komaCount] = new Koma(img, new Point(right_down_start.x + XMAX - (int)xMaxEndPoint[j][0], right_down_start.y + YMAX - (int)xMaxEndPoint[j][1]), right_down_start);
+					koma[komaCount] = new Koma(img, new Point(right_down_start.x + XMAX - (int)yMaxEndPoint[j][0], right_down_start.y + YMAX - (int)xMaxEndPoint[i][1]), right_down_start);
 					komaCount++;
 				}
 				colorFlag = true;
