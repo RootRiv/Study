@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -35,7 +36,9 @@ public class KomaDetect {
 		String path_line_out = "C:/Users/Tonegawa/Pictures/KomaDetect/line_out.jpg";
 		String path_line_out2 = "C:/Users/Tonegawa/Pictures/KomaDetect/line_out2.jpg";
 		String path_rect_out = "C:/Users/Tonegawa/Pictures/KomaDetect/rect_out.jpg";
+		String path_combined_image_out = "C:/Users/Tonegawa/Pictures/KomaDetect/combined_image.jpg";
 
+		String path_debug_out = "C:/Users/Tonegawa/Pictures/KomaDetect/debug.jpg";
 
 		Mat src = new Mat();
 		Mat gray = new Mat();
@@ -83,13 +86,14 @@ public class KomaDetect {
 		//線分における縦と横がまっすぐな線のみを抽出して描画する
 		drwLineEnd(white2, x0EndLine, xMaxEndLine, y0EndLine, yMaxEndLine);
 
-		//rectに輪郭検出法で検出したコマをぬりつぶした画像を格納
+		//rectは白い画像であることを前提とする
+		//rectに輪郭検出法で検出したコマをぬりつぶす
 		for(int i = 0;i < komaCount;i++){
 			Core.rectangle(rect, koma[i].getMinPoint(), koma[i].getMaxPoint(), new Scalar(255,0,0), -1);
 		}
 
 		//線分検出手法によるコマ抽出
-		//rectには塗りつぶされた画像を格納
+		//rectには塗りつぶされた画像を格納してある
 		cutEndLineRect(rect ,src, koma, x0EndLine, xMaxEndLine, y0EndLine, yMaxEndLine);
 
 		Highgui.imwrite(path_gray_out, gray);				// 出力画像を保存
@@ -99,6 +103,7 @@ public class KomaDetect {
 		Highgui.imwrite(path_line_out2, white2);
 		Highgui.imwrite(path_rect_out, rect);
 
+		//コマの画像の保存
 		Integer name = 0;
 		String filename;
     	for(int i = 0;i < komaCount;i++){
@@ -112,6 +117,36 @@ public class KomaDetect {
     		name++;
     	}
 
+    	//画像の結合
+    	//画像サイズの設定
+    	int maxWidth = 0;
+		int totalHeight = 0;
+		for(int i = 0;i < komaCount;i++){
+			totalHeight += koma[i].getHigh();
+			if(maxWidth  < koma[i].getWidth()){
+				maxWidth = koma[i].getWidth();
+			}
+		}
+
+		//縦に結合
+		Mat combined_img = new Mat(totalHeight, maxWidth, CvType.CV_8UC3);
+		Rect roi = new Rect();
+		for(int i = 0;i < komaCount;i++){
+			roi.width = koma[i].getWidth();
+			roi.height = koma[i].getHigh();
+			//このfor文内で画像を切り抜いている
+			//KomaクラスのgetImageではうまくいかなかった
+			Rect sroi = new Rect(koma[i].getMinPointX(), koma[i].getMinPointY(), koma[i].getWidth(), koma[i].getHigh());
+			Mat img2 = new Mat(src, sroi);		//切り抜いた画像（コマ）
+			Mat mRoi = new Mat(combined_img, roi);
+			img2.copyTo(mRoi);
+			roi.y += koma[i].getHigh();
+		}
+
+		//debug
+		Highgui.imwrite(path_debug_out, koma[1].getImage());
+		//main
+		Highgui.imwrite(path_combined_image_out, combined_img);
 	}
 
 	//縦と横の線のみを描画するメソッド

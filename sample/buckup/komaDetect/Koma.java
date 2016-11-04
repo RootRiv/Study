@@ -2,6 +2,7 @@ package komaDetect;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 
 public class Koma {
 	private Mat image;
@@ -36,8 +37,12 @@ public class Koma {
         width = (int) (max.x - min.x);
         return width;
     }
+    //切り抜いた画像のMat型を返す
+    //なぜかうまくいかない
     public Mat getImage(){
-        return image;
+    	Rect roi = new Rect((int)min.x, (int)min.y, width, high);
+    	Mat returnImage = new Mat(image, roi);
+        return returnImage;
     }
 
     public void setImage(Mat src) {
