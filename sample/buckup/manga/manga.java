@@ -14,7 +14,6 @@ public class manga {
 	}
 
 	public static void main(String[] args) {
-
 		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/manga/sample_gray.jpg";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/manga/sample_edges.jpg";

@@ -29,7 +29,7 @@ public class KomaDetect {
 		//添え字はグローバル変数に記載
 		Koma[] koma = new Koma[20];
 
-		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
+		String path_in = "C:/Users/Tonegawa/Pictures/mass.png";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/KomaDetect/edges_out.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/KomaDetect/gray_out.jpg";
 		String path_matContours_out = "C:/Users/Tonegawa/Pictures/KomaDetect/contours_out.jpg";
@@ -75,6 +75,7 @@ public class KomaDetect {
 
 		Imgproc.HoughLinesP(edges2, lines, 1, Math.PI / 180, 100, 100, 5);	//直線検出
 		fncDrwLine(lines, white);									//直線描画
+		System.out.println("lines.size() = " + lines.size());
 		doubleContours = fncDrwLine(lines, white);
 
 		int[] size = endLineSize(src, doubleContours);
@@ -121,7 +122,7 @@ public class KomaDetect {
 
     	//画像の結合
     	//画像サイズの設定
-    	int maxWidth = 0;
+    	/*int maxWidth = 0;
 		int totalHeight = 0;
 		for(int i = 0;i < komaCount;i++){
 			totalHeight += koma[i].getHigh();
@@ -143,11 +144,14 @@ public class KomaDetect {
 			img2.copyTo(mRoi);
 			roi.y += koma[i].getHigh();
 		}
+		*/
+		Mat combine = new Mat();
+		combine = pictureCombine(src, koma);
 
 		//debug
 		Highgui.imwrite(path_debug_out, koma[1].getImage());
 		//main
-		Highgui.imwrite(path_combined_image_out, combined_img);
+		Highgui.imwrite(path_combined_image_out, combine);
 	}
 
 	//縦と横の線のみを描画するメソッド
@@ -162,11 +166,8 @@ public class KomaDetect {
 		for (int i = 0; i < line.cols(); i++){
 			data = line.get(0, i);
 			pt1.x = data[0];
-
 			pt1.y = data[1];
-
 			pt2.x = data[2];
-
 			pt2.y = data[3];
 
 			if(pt1.x == pt2.x || pt1.y == pt2.y){
@@ -175,7 +176,7 @@ public class KomaDetect {
 				contours[count][1]  = pt1.y;
 				contours[count][2]  = pt2.x;
 				contours[count][3]  = pt2.y;
-				//
+				//debug
 				System.out.print("(" + contours[count][0] + ",");
 				System.out.print(contours[count][1] + "), ");
 				System.out.print("(" + contours[count][2] + ",");
@@ -280,10 +281,10 @@ public class KomaDetect {
     		}
     	}
     	//sort
-    	//Arrays.sort(koma, 0, count, new SampleComparator());
+    	Arrays.sort(koma, 0, count, new SampleComparator());
 
     	//4koma sort
-    	Arrays.sort(koma, 0, count, new XYComparator());
+    	//Arrays.sort(koma, 0, count, new XYComparator());
 
     	//デバッグ
     	System.out.println("after sort");
@@ -656,12 +657,40 @@ public class KomaDetect {
 		//System.out.println(filename + ".jpg save success");
 		return img2;
 	}
-
+	
+	private static Mat pictureCombine(Mat src, Koma[] koma){
+    	//画像の結合
+    	//画像サイズの設定
+    	int maxWidth = 0;
+		int totalHeight = 0;
+		for(int i = 0;i < komaCount;i++){
+			totalHeight += koma[i].getHigh();
+			if(maxWidth  < koma[i].getWidth()){
+				maxWidth = koma[i].getWidth();
+			}
+		}
+		//縦に結合
+		Mat combined_img = new Mat(totalHeight, maxWidth, CvType.CV_8UC3);
+		Rect roi = new Rect();
+		for(int i = 0;i < komaCount;i++){
+			roi.width = koma[i].getWidth();
+			roi.height = koma[i].getHigh();
+			//このfor文内で画像を切り抜いている
+			//KomaクラスのgetImageではうまくいかなかった
+			Rect sroi = new Rect(koma[i].getMinPointX(), koma[i].getMinPointY(), koma[i].getWidth(), koma[i].getHigh());
+			Mat img2 = new Mat(src, sroi);		//切り抜いた画像（コマ）
+			Mat mRoi = new Mat(combined_img, roi);
+			img2.copyTo(mRoi);
+			roi.y += koma[i].getHigh();
+		}
+		
+		return combined_img;
+	}
     //sortのための比較
     public static class SampleComparator implements Comparator<Koma>{
     	public int compare(Koma koma1, Koma koma2) {
     		int k = koma1.getMinPointY() - koma2.getMinPointY();
-    		if(k <= 10 && k >= -10)
+    		if(k <= 20 && k >= -20)
     			return  koma2.getMinPointX() - koma1.getMinPointX();
 
     		return k;
@@ -672,7 +701,7 @@ public class KomaDetect {
     public static class XYComparator implements Comparator<Koma>{
     	public int compare(Koma koma1, Koma koma2) {
     		int k = koma2.getMinPointX() - koma1.getMinPointX();
-    		if(k <= 10 && k >= -10)
+    		if(k <= 20 && k >= -20)
     			return   koma1.getMinPointY() - koma2.getMinPointY();
 
     		return k;
