@@ -2,6 +2,7 @@ package findcontours;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class FindContoursTest {
 	public static void main(String[] args) {
 		// TODO 自動生成されたメソッド・スタブ
 
-		String path_in = "C:/Users/Tonegawa/Pictures/side_sample.jpg";
+		String path_in = "C:/Users/Tonegawa/Pictures/fig1.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/Findcontours/sample_gray.jpg";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/Findcontours/sample_edges.jpg";
 		String path_rect_out = "C:/Users/Tonegawa/Pictures/Findcontours/sample_rect.jpg";
@@ -166,12 +167,57 @@ public class FindContoursTest {
 		ArrayList<Point> cluster3 = new ArrayList<Point>();
 
 		fncSep(src_copy, center, cluster1, cluster2, cluster3);
+		Point grSort[] = groupSort(cluster1, cluster2,cluster3);
+		Koma[] g = PointCeter2Koma(grSort,koma,count);
+
+		Integer num=0;
+		for(int i = 0;i < count;i++){
+			System.out.println( "i = " + i);
+			fncCutImageRect(src, g[i].getMinPoint(), g[i].getWidth(), g[i].getHigh(), "GroupSort" + num.toString());
+			num++;
+		}
+
 
 		Highgui.imwrite(path_rect_out, white);
 		//Core.addWeighted(white_out, 0.5, white, 0.5, 0, dst);
 		//Core.addWeighted(dst, 0.5, rin, 0.5, 0, dst);
 		Highgui.imwrite(path_gousei, dst);
 		Highgui.imwrite(path_circle_out, circle_img);
+	}
+
+	private static Point[] groupSort(ArrayList<Point> cluster1, ArrayList<Point> cluster2, ArrayList<Point> cluster3){
+		Collections.sort(cluster1,new Point4Comparator());
+		Collections.sort(cluster2,new Point4Comparator());
+		Collections.sort(cluster3,new Point4Comparator());
+
+		int len = cluster1.size() + cluster2.size() + cluster3.size();
+		int pop = 0;
+		Point p[] = new Point[len];
+		for(int i = 0;i < cluster1.size();i++){
+			p[i] = cluster1.get(i);
+			pop++;
+		}
+		for(int i = 0;i < cluster2.size();i++){
+			p[pop] = cluster2.get(i);
+			pop++;
+		}
+		for(int i = 0;i < cluster3.size();i++){
+			p[pop] = cluster3.get(i);
+			pop++;
+		}
+		return p;
+	}
+
+	private static Koma[] PointCeter2Koma(Point[] p, Koma k[],int count){
+		Koma rk[] = new Koma[count];
+		for(int i = 0;i < count;i++){
+			for(int j = 0;j < count;j++){
+				if(p[i].equals(k[j].getCenterPoint())){
+					rk[i] = k[j];
+				}
+			}
+		}
+		return rk;
 	}
 
 	//長方形切抜き
@@ -181,6 +227,14 @@ public class FindContoursTest {
 		String s = new String("C:/Users/Tonegawa/Pictures/Findcontours/" + count.toString() + ".jpg");
 		Highgui.imwrite(s,img2);
 		System.out.println(count + ".jpg save success");
+	}
+
+	private static void fncCutImageRect(Mat img, Point pt1, int w,int h,String name){
+		Rect roi = new Rect((int)pt1.x, (int)pt1.y, w, h);
+		Mat img2 = new Mat(img, roi);
+		String s = new String("C:/Users/Tonegawa/Pictures/Findcontours/" + name + ".jpg");
+		Highgui.imwrite(s,img2);
+		System.out.println(name + ".jpg save success");
 	}
 
 	private static Point[] drwCenterPoint(Mat img, Koma[] koma, int count){
@@ -198,6 +252,7 @@ public class FindContoursTest {
 		return r;
 	}
 
+	//kmeansによるグループ分け
 	private static void fncSep(Mat src, Point[] p, ArrayList<Point> cluster1, ArrayList<Point> cluster2, ArrayList<Point> cluster3){
 		/*
 		ArrayList<Point> cluster1 = new ArrayList<Point>();
@@ -326,12 +381,15 @@ public class FindContoursTest {
         private Point max,min;
         private int high;
         private int width;
+        Point center = new Point();
 
         //コンストラクタ
         public Koma(Mat src, Point getMax, Point getMin) {
             image = src;
             max = getMax;
             min = getMin;
+			center.x = (int)(min.x + max.x) / 2;
+			center.y = (int)(min.y + max.y) / 2;
             high = (int) (max.y - min.y);
             width = (int) (max.x - min.x);
         }
@@ -342,6 +400,9 @@ public class FindContoursTest {
         public Point getMinPoint() {
            return min;
        }
+        public Point getCenterPoint() {
+            return center;
+        }
         public int getMaxPointX() { return (int)max.x;}
         public int getMaxPointY() { return (int)max.y;}
         public int getMinPointX() { return (int)min.x;}
@@ -398,6 +459,16 @@ public class FindContoursTest {
     		int k = koma2.getMinPointX() - koma1.getMinPointX();
     		if(k <= 10 && k >= -10)
     			return   koma1.getMinPointY() - koma2.getMinPointY();
+
+    		return k;
+    	}
+    }
+
+    public static class Point4Comparator implements Comparator<Point>{
+    	public int compare(Point p, Point q) {
+    		int k = (int) (q.x - p.x);
+    		if(k <= 10 && k >= -10)
+    			return   (int) (p.y - q.y);
 
     		return k;
     	}

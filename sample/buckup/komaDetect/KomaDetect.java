@@ -29,7 +29,7 @@ public class KomaDetect {
 		//添え字はグローバル変数に記載
 		Koma[] koma = new Koma[20];
 
-		String path_in = "C:/Users/Tonegawa/Pictures/mass.png";
+		String path_in = "C:/Users/Tonegawa/Pictures/fig1.jpg";
 		String path_edge_out = "C:/Users/Tonegawa/Pictures/KomaDetect/edges_out.jpg";
 		String path_gray_out = "C:/Users/Tonegawa/Pictures/KomaDetect/gray_out.jpg";
 		String path_matContours_out = "C:/Users/Tonegawa/Pictures/KomaDetect/contours_out.jpg";
@@ -119,6 +119,12 @@ public class KomaDetect {
     		fncCutImageRect(src, koma[i].getMinPoint(), koma[i].getWidth(), koma[i].getHigh(), filename);
     		name++;
     	}
+    	
+    	//debug for powerpoint
+		for(int i = 0;i < komaCount;i++){
+			Core.rectangle(rect, koma[i].getMinPoint(), koma[i].getMaxPoint(), new Scalar(255,0,0), -1);
+		}
+		Highgui.imwrite(path_rect_out, rect);
 
     	//画像の結合
     	//画像サイズの設定
